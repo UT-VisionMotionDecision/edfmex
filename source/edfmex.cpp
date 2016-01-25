@@ -53,7 +53,6 @@ Questions can be sent to christopher-kovach@uiowa.edu.
 			done = ( i - Offset + 1) * stepsize / (Nrec - Offset); 
 			if ( done  >  modtest )
 			{
-//				mexPrintf(" *");
 				mexPrintf("\b\b\b\b%3i%%",done*100/stepsize);
 				mexEvalString("drawnow");
 				modtest++;
@@ -61,7 +60,8 @@ Questions can be sent to christopher-kovach@uiowa.edu.
 		};
 
 	};
-	
+    
+	mexPrintf("\n");
 	char headertext[1000];
 	
 	edf_get_preamble_text(edfptr, headertext, 1000);
@@ -69,46 +69,42 @@ Questions can be sent to christopher-kovach@uiowa.edu.
 	mxSetField(OutputMexObject,0,"HEADER",mxCreateString(headertext));
 	mxAddField(OutputMexObject,"FILENAME");
 	mxSetField(OutputMexObject,0,"FILENAME",mxCreateString(FileName));
-
-
+    
 	return 0;
 
 };
 
- 
-
-int load_samples = 1;
 int load_events = 1;
 int consistency_check = 1;
 mwSize countN;
 
-
 int err = 0;
-
-
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
     int MaxRec = 0;
     int Offset = 0;
     
-	char FileName[100];
+	char FileName[200];
 
 	int chk;
 	chk = mxGetString(prhs[0], FileName, mxGetNumberOfElements(prhs[0])+1);
 	if (chk == 1) mexErrMsgTxt("Not a valid string");
 	
-
-
-	if (  nrhs >= 2) Offset = *mxGetPr(prhs[1]);
+    const mxArray * load_samples;
+	
+    if (  nrhs >= 2) Offset = *mxGetPr(prhs[1]);
 	if (  nrhs >= 3) MaxRec = *mxGetPr(prhs[2]);
-	if (  nrhs >= 4) load_samples = *mxGetPr(prhs[3]);
+	if (  nrhs >= 4){
+        load_samples = prhs[3];
+    }else{
+        load_samples = mxCreateDoubleScalar(1);
+    }
 	if (  nrhs >= 5) load_events = *mxGetPr(prhs[4]);
 	if (  nrhs >= 6) consistency_check   = *mxGetPr(prhs[5]);
 
-	BuildMexArrays BuildMex( FileName , (int) consistency_check , (int) load_events  , (int) load_samples);
-
-
+	BuildMexArrays BuildMex( FileName , (int) consistency_check , (int) load_events  ,load_samples);
+    
 	BuildMex.PopulateArrays( Offset, MaxRec );
 	BuildMex.CreateMexStruc();
 

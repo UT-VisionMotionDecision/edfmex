@@ -36,6 +36,8 @@ public:
 	int DataCode;
 	int fileError;
 	int Nrec;
+    bool loadSamples;
+    bool loadEvents;
 	char * FileName;
 	const char * RecordTypes[100];
 
@@ -49,7 +51,7 @@ public:
 
 	int CreateMexArrays();
 
-	int  IncrementRecord();
+	int IncrementRecord();
 
 	int AppendRecord();  //defined in edf2mex.h
 
@@ -72,19 +74,20 @@ int BuildMexArraysBaseClass::Initialize( char * filenamein, int consistency_chec
 	
 	FileName = filenamein;
 
-	try
-	{
-		edfptr = edf_open_file(FileName ,  consistency_check ,  load_events  ,  load_samples , &fileError);
-		if (edfptr == NULL) throw 0;
-	}
-	catch(int)
-	{
-		mexErrMsgTxt("Failed to open file.");
-	}
-
-	Nrec = edf_get_element_count(edfptr); //Number of records
-
-
+    try
+    {
+        edfptr = edf_open_file(FileName ,  consistency_check ,  load_events  ,  load_samples , &fileError);
+        if (edfptr == NULL) throw 0;
+    }
+    catch(int)
+    {
+        mexErrMsgTxt("Failed to open file.");
+    }
+    Nrec = edf_get_element_count(edfptr); //Number of records
+    
+    loadSamples=load_samples;
+    loadEvents=load_events;
+    
 	return 0;
 };
 
