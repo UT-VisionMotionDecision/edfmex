@@ -3,9 +3,12 @@
 % to read data from C structures defined in edf_data.h and load them into similarly organized
 % mxArray structures.
 %
-% To use this, make sure that the edf header files edf.h, edftypes.h, edf_data.h are in the same
-% directory, then type 'makeHeader' at the matlab command line. Make sure these are for the same
+% To use this, make sure that the variable 'Headers' points to the directory that includes the 
+% edf header files (edf.h, edftypes.h, edf_data.h). And 'APIDir' points to the edfapi directory 
+% then type 'makeHeader' at the matlab command line. Make sure these are for the same
 % version of edfapi.dll you intend to use. The output is a C header file, edf2mex.h.
+% If compile is set to true, makeHeader will attempt to compile the edfmex
+% for you.
 
 %Kovach 2009
 
@@ -16,18 +19,24 @@ if nargin < 1
     prepare=true;
 end
 
-if strcmp(OSName,'OSX')
+if ismac
     Headers='/Library/Frameworks/edfapi.framework/Headers';
-    API='/Library/Frameworks/edfapi.framework';
-    LDFLAGS='\$LDFLAGS -framework edfapi';
-else
-    LDFLAGS='\$LDFLAGS';
+    APIDir='/Library/Frameworks/edfapi.framework';
+    APIName='edfapi';
+    OSCompileOptions={'LDFLAGS="\$LDFLAGS -framework edfapi"'};    
+elseif ispc
+    Headers='C:\Program Files (x86)\SR Research\EyeLink\EDF_Access_API\Example';
+    APIDir='C:\Program Files (x86)\SR Research\EyeLink\EDF_Access_API\lib\win64';
+    APIName='edfapi64';
+    OSCompileOptions={['-L' APIDir],['-l' APIName]};
+elseif isunix
+    error('Please add the default paths for unix...')
 end
 
 if prepare
-    loadlibrary([API filesep 'edfapi'],[Headers filesep 'edf.h']);
-    edfapi_version = calllib('edfapi','edf_get_version');
-    unloadlibrary('edfapi');
+    loadlibrary([APIDir filesep APIName],[Headers filesep 'edf.h']);
+    edfapi_version = calllib(APIName,'edf_get_version');
+    unloadlibrary(APIName);
 
 
     %RecTypes contains information about which structure type definitions to
@@ -420,7 +429,7 @@ if prepare
 end
 
 if compile
-    mex('-largeArrayDims', 'edfmex.cpp', ['LDFLAGS="' LDFLAGS '"'], ['-I"' Headers '"'], '-output', ['"..' filesep 'edfmex"']);
+    mex('-largeArrayDims', 'edfmex.cpp', ['-I"' Headers '"'], '-output', ['"..' filesep 'edfmex"'], OSCompileOptions{:});
 end
 
 %%%%%%%%%%%%%%%%%
@@ -451,5 +460,3 @@ for i = 1:length(c)
         end
     end
 end
-
-
