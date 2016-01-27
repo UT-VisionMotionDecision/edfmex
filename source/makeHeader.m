@@ -1,4 +1,4 @@
- function makeHeader(prepare, compile)
+function makeHeader(prepare, compile)
 %Generates the header files edf2mex.h which contains necessary mex structures and functions
 % to read data from C structures defined in edf_data.h and load them into similarly organized
 % mxArray structures.
@@ -10,7 +10,20 @@
 % If compile is set to true, makeHeader will attempt to compile the edfmex
 % for you.
 
-%Kovach 2009
+%     Copyright (C) 2009  Christopher K. Kovach, 2015 Christopher K. Kovach & Jonas Knöll
+% 
+%     This program is free software: you can redistribute it and/or modify
+%     it under the terms of the GNU Affero General Public License as published by
+%     the Free Software Foundation, either version 3 of the License, or
+%     (at your option) any later version.
+% 
+%     This program is distributed in the hope that it will be useful,
+%     but WITHOUT ANY WARRANTY; without even the implied warranty of
+%     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%     GNU Affero General Public License for more details.
+% 
+%     You should have received a copy of the GNU Affero General Public License
+%     along with this program.  If not, see <http://www.gnu.org/licenses/>. 
 
 if nargin < 2
     compile=true;
